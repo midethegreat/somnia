@@ -148,7 +148,7 @@ That's it.
 ## What You Need
 
 - A web3 wallet installed (MetaMask, Coinbase Wallet, etc.)
-- Connected to Ethereum (or whatever network we're on)
+- Connected to Ethereum (or whatever network you're on)
 - Some test tokens if you want to actually place bets
 
 ## The Stack
