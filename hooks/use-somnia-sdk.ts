@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { type SDK, SchemaEncoder } from "@somnia-chain/streams"
 import { createPublicClient, createWalletClient, http, type Hex } from "viem"
-import { mainnet } from "viem/chains"
 import { initializeSDK, BET_SCHEMA, computeBetSchemaId } from "@/lib/somnia-sdk"
+import { somniaTestnet } from "@/lib/somnia-chain"
 
 /**
  * Hook to initialize and manage Somnia SDK instance
@@ -21,12 +21,12 @@ export function useSomniaSDK() {
       try {
         // Create viem clients
         const publicClient = createPublicClient({
-          chain: mainnet,
+          chain: somniaTestnet,
           transport: http(),
         })
 
         const walletClient = createWalletClient({
-          chain: mainnet,
+          chain: somniaTestnet,
           transport: http(),
         })
 

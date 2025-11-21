@@ -1,10 +1,10 @@
-# Somnia
+# Somniai
 
 A prediction markets app built on Somnia Data Streams. Place bets on market outcomes, check your history, and everything is stored on the blockchain transparently.
 
-## What's Somnia?
+## What's Somniai?
 
-Somnia is a betting platform where you can predict market movements and earn returns. Instead of a company holding all your bet data, it's stored on **Somnia Data Streams** - so you own everything.
+Somniai is a betting platform where you can predict market movements and earn returns. Instead of a company holding all your bet data, it's stored on **Somnia Data Streams** - so you own everything.
 
 You connect your wallet (MetaMask, Coinbase Wallet, Trust Wallet, or WalletConnect), place bets, and all the data lives on-chain permanently. No middleman, no shady databases.
 
@@ -20,11 +20,18 @@ Here's the flow:
 4. **It's permanent** - The bet is now on the blockchain, forever
 5. **Anyone can verify** - Your history is public and verifiable anytime
 
+## Why This Matters
+
+- **You own your data** - Not us, not some server farm. You.
+- **It's transparent** - Every bet is on-chain, fully auditable
+- **It's secure** - Uses your wallet's private key, no passwords
+- **It's decentralized** - No single point of failure, can't be shut down
+
 ## How to Use
 
 ### Connect Your Wallet
 
-1. Open Somnia
+1. Open Somniai
 2. Click "Connect Wallet"
 3. Choose your wallet (MetaMask recommended)
 4. Approve the connection
@@ -52,8 +59,10 @@ That's it. You're in.
 ### Bet Data Storage
 
 Every bet follows the same format:
-`
-timestamp (when) | bet type (up/down) | amount | odds | bet ID | market ID`
+
+\`\`\`
+timestamp (when) | bet type (up/down) | amount | odds | bet ID | market ID
+\`\`\`
 
 This structure lets us store and retrieve bets efficiently, and it's the same format everyone uses. No mess.
 
@@ -81,6 +90,7 @@ Markets update every 3 seconds with live prices. It's pulling current data and c
 
 ### When You Place a Bet
 
+\`\`\`
 You click BUY
     ↓
 Bet details collected (amount, odds, market)
@@ -94,10 +104,11 @@ You approve it
 Published to Somnia Data Streams
     ↓
 It's permanent on the blockchain
+\`\`\`
 
 ### When You Check History
 
-
+\`\`\`
 You click history icon
     ↓
 App fetches all bets for your wallet from SDS
@@ -106,10 +117,12 @@ Decodes the data back into readable format
     ↓
 Calculates stats (wins, losses, profit)
     ↓
-Shows it all
-## Traditional App vs. Somnia
+Shows it all in a nice modal
+\`\`\`
 
-| What | Normal App | Somnia |
+## Traditional App vs. Somniai
+
+| What | Normal App | Somniai |
 |------|-----------|---------|
 | Where's your data? | Their servers | Blockchain |
 | Who owns it? | Them | You |
@@ -159,8 +172,20 @@ Every bet you place, including:
 
 All stored under your wallet address so it's provably yours.
 
+## Why Not Just Use a Database?
+
+Because then we'd be in control of your data. With SDS, you are. You can:
+- Access your history from any Somnia-compatible app
+- Prove you made a bet without asking us
+- See exactly when it was made and what the odds were
+- Know it'll never be deleted or modified
 
 ## Built By
 
 **Mide**
 
+Made with blockchain technology and a love for transparent systems.
+
+---
+
+**That's Somniai.** Place bets, own your data.

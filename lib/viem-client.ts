@@ -1,12 +1,12 @@
 import { createPublicClient, createWalletClient, http } from "viem"
-import { mainnet } from "viem/chains"
+import { somniaTestnet } from "viem/chains"
 
 /**
  * Create a public client for reading blockchain data
  */
 export function createPublicClientInstance() {
   return createPublicClient({
-    chain: mainnet,
+    chain: somniaTestnet,
     transport: http(),
   })
 }
@@ -16,7 +16,7 @@ export function createPublicClientInstance() {
  */
 export function createWalletClientInstance() {
   return createWalletClient({
-    chain: mainnet,
+    chain: somniaTestnet,
     transport: http(),
   })
 }
