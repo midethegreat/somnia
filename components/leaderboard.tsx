@@ -20,55 +20,110 @@ export default function Leaderboard() {
     {
       rank: 1,
       address: "0x742d...8f2e",
-      wins: 42,
-      losses: 8,
-      totalProfit: 15420,
-      winRate: 84,
-      totalVolume: 45000,
-      streak: 7,
+      wins: 127,
+      losses: 43,
+      totalProfit: 4250,
+      winRate: 75,
+      totalVolume: 18500,
+      streak: 8,
       avatar: "🥇",
     },
     {
       rank: 2,
       address: "0x29e4...c51f",
-      wins: 38,
-      losses: 12,
-      totalProfit: 12850,
-      winRate: 76,
-      totalVolume: 38500,
-      streak: 4,
+      wins: 98,
+      losses: 52,
+      totalProfit: 3180,
+      winRate: 65,
+      totalVolume: 15200,
+      streak: 5,
       avatar: "🥈",
     },
     {
       rank: 3,
       address: "0x8f4e...9d3a",
-      wins: 35,
-      losses: 15,
-      totalProfit: 10240,
-      winRate: 70,
-      totalVolume: 32000,
-      streak: 2,
+      wins: 89,
+      losses: 61,
+      totalProfit: 2640,
+      winRate: 59,
+      totalVolume: 12800,
+      streak: 3,
       avatar: "🥉",
     },
     {
       rank: 4,
       address: "0x5c2a...1b8f",
-      wins: 28,
-      losses: 22,
-      totalProfit: 5680,
-      winRate: 56,
-      totalVolume: 22500,
-      streak: 1,
+      wins: 76,
+      losses: 74,
+      totalProfit: 1520,
+      winRate: 51,
+      totalVolume: 9600,
+      streak: 2,
       avatar: "👤",
     },
     {
       rank: 5,
       address: "0x9e7d...4c2b",
-      wins: 24,
-      losses: 26,
-      totalProfit: 2130,
-      winRate: 48,
-      totalVolume: 18000,
+      wins: 64,
+      losses: 86,
+      totalProfit: 890,
+      winRate: 43,
+      totalVolume: 7400,
+      streak: 1,
+      avatar: "👤",
+    },
+    {
+      rank: 6,
+      address: "0x1a2b...3c4d",
+      wins: 58,
+      losses: 92,
+      totalProfit: 420,
+      winRate: 39,
+      totalVolume: 5800,
+      streak: 0,
+      avatar: "👤",
+    },
+    {
+      rank: 7,
+      address: "0x4e5f...6a7b",
+      wins: 52,
+      losses: 98,
+      totalProfit: 180,
+      winRate: 35,
+      totalVolume: 4200,
+      streak: 1,
+      avatar: "👤",
+    },
+    {
+      rank: 8,
+      address: "0x7c8d...9e0f",
+      wins: 45,
+      losses: 105,
+      totalProfit: -320,
+      winRate: 30,
+      totalVolume: 3500,
+      streak: 0,
+      avatar: "👤",
+    },
+    {
+      rank: 9,
+      address: "0x2b3c...4d5e",
+      wins: 38,
+      losses: 112,
+      totalProfit: -580,
+      winRate: 25,
+      totalVolume: 2800,
+      streak: 0,
+      avatar: "👤",
+    },
+    {
+      rank: 10,
+      address: "0x6f7a...8b9c",
+      wins: 31,
+      losses: 119,
+      totalProfit: -840,
+      winRate: 21,
+      totalVolume: 2100,
       streak: 0,
       avatar: "👤",
     },
@@ -92,7 +147,7 @@ export default function Leaderboard() {
             <Trophy className="w-8 h-8 text-primary" />
             <h1 className="text-4xl font-bold text-foreground">Leaderboard</h1>
           </div>
-          <p className="text-muted-foreground">Top prediction market players</p>
+          <p className="text-muted-foreground">Top performers ranked by {filter === "profit" ? "total profit" : filter === "wins" ? "total wins" : "current win streak"}</p>
         </div>
 
         {/* Filter Controls */}
@@ -210,13 +265,13 @@ export default function Leaderboard() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`text-sm font-semibold ${user.totalProfit > 0 ? "text-primary" : "text-destructive"}`}
+                        className={`text-sm font-semibold ${user.totalProfit > 0 ? "text-green-600" : "text-red-600"}`}
                       >
-                        ${user.totalProfit.toLocaleString()}
+                        {user.totalProfit > 0 ? "+" : ""}${user.totalProfit.toLocaleString()} SMN
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-muted-foreground">
-                      ${(user.totalVolume / 1000).toFixed(1)}k
+                      {user.totalVolume >= 1000 ? `${(user.totalVolume / 1000).toFixed(1)}k` : user.totalVolume} SMN
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
