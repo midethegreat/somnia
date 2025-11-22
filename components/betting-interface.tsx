@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TrendingUp, TrendingDown, Zap } from 'lucide-react';
+import { toast } from 'sonner';
+import { toHex } from 'viem';
 
 interface BettingInterfaceProps {
   selectedBet?: any;
@@ -29,10 +31,56 @@ export default function BettingInterface({ selectedBet }: BettingInterfaceProps)
 
   const handlePlaceBet = async () => {
     setIsPlacing(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsPlacing(false);
-    setAmount('100');
-    alert(`✅ Bet placed! ${betType} for $${amount} at ${currentOdds}x odds`);
+    
+    try {
+      // Create bet data for blockchain
+      const betData = {
+        betType,
+        amount: parseFloat(amount),
+        odds: currentOdds,
+        potentialPayout: potentialPayout,
+        profit: profit,
+        marketTitle: mockBet.title,
+        currentPrice: mockBet.currentPrice,
+        timestamp: Date.now(),
+      };
+
+      // Publish bet data to Somnia blockchain
+      const response = await fetch('/api/somnia/emit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          streamId: toHex('bet-stream', { size: 32 }),
+          schemaId: toHex('bet-schema-v1', { size: 32 }),
+          encodedData: toHex(JSON.stringify(betData)),
+          eventId: toHex(`bet-${Date.now()}`, { size: 32 }),
+          topics: [
+            toHex(betType, { size: 32 }),
+            toHex(amount, { size: 32 }),
+          ],
+          data: toHex(JSON.stringify(betData)),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(
+          `✅ Bet published to Somnia blockchain!\n${betType} for $${amount} at ${currentOdds}x odds`,
+          { duration: 4000 }
+        );
+        setAmount('100');
+      } else {
+        toast.error('Failed to publish bet to blockchain: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Bet placement error:', error);
+      toast.error('Failed to place bet on blockchain');
+    } finally {
+      setIsPlacing(false);
+    }
   };
 
   return (
