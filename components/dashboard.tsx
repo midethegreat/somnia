@@ -91,7 +91,7 @@ export default function Dashboard({ onDisconnect, walletAddress }: DashboardProp
         )}
       </main>
 
-      {showHistory && <BetHistoryModal onClose={() => setShowHistory(false)} />}
+      {showHistory && <BetHistoryModal onClose={() => setShowHistory(false)} walletAddress={walletAddress} />}
     </div>
   )
 }

@@ -58,6 +58,32 @@ The app has defaults for all required configurations:
 6. Configured deployment with autoscale target (build: npm run build, run: npm start)
 7. Verified application is running successfully and displays wallet connection screen without errors
 
+### Somnia Data Streams JSON Download Feature (Completed)
+1. Created `hooks/use-bet-history.ts` - fetches real bet data from Somnia Data Streams blockchain
+2. Updated `hooks/use-somnia-sdk.ts` - uses browser wallet (custom transport with window.ethereum) for signer-aware connection
+3. Enhanced bet history modal - displays live Somnia stream data with download button
+4. Download exports complete JSON file with: exportDate, walletAddress, schema, totalRecords, and all bet data
+5. Modal tabs all show data from the same source that gets exported (displayHistory)
+6. Implemented comprehensive error handling and loading states
+7. Falls back to mock data when no Somnia bets exist yet
+
+**JSON Export Format:**
+```json
+{
+  "exportDate": "2025-11-22T...",
+  "walletAddress": "0x...",
+  "schema": "uint64 timestamp, uint8 betType, uint256 amount, uint256 odds, bytes32 betId, bytes32 marketId",
+  "totalRecords": 5,
+  "bets": [/* array of bet records from Somnia */]
+}
+```
+
+**Files Modified:**
+- `components/bet-history-modal.tsx` - Added download button and real-time data display
+- `hooks/use-bet-history.ts` - New hook for fetching and downloading bet data
+- `hooks/use-somnia-sdk.ts` - Updated to use signer-aware wallet client
+- `lib/somnia-sdk.ts` - Added explicit return type for computeBetSchemaId
+
 ## Development Workflow
 
 ### Starting the App

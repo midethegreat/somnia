@@ -27,8 +27,8 @@ export function createBetSchemaEncoder() {
 /**
  * Compute schema ID for bet data
  */
-export async function computeBetSchemaId(sdk: SDK) {
-  return await sdk.streams.computeSchemaId(BET_SCHEMA)
+export async function computeBetSchemaId(sdk: SDK): Promise<Hex> {
+  return await sdk.streams.computeSchemaId(BET_SCHEMA) as Hex
 }
 
 /**
@@ -81,7 +81,7 @@ export async function getBetData(sdk: SDK, schemaId: Hex, publisherAddress: Hex,
  * Retrieve all bet data for a user
  */
 export async function getAllUserBets(sdk: SDK, schemaId: Hex, publisherAddress: Hex) {
-  return await sdk.streams.getAllPublisherDataForSchema({ schemaId, decoder: null }, publisherAddress)
+  return await sdk.streams.getAllPublisherDataForSchema(schemaId, publisherAddress)
 }
 
 /**

@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { X, TrendingUp, TrendingDown } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Download, Loader2, AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useBetHistory } from '@/hooks/use-bet-history';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface HistoryItem {
   id: string;
@@ -63,20 +66,46 @@ const mockHistory: HistoryItem[] = [
 
 interface BetHistoryModalProps {
   onClose: () => void;
+  walletAddress?: string;
 }
 
-export default function BetHistoryModal({ onClose }: BetHistoryModalProps) {
-  const [filter, setFilter] = useState<'all' | 'WIN' | 'LOSS' | 'PENDING'>('all');
+export default function BetHistoryModal({ onClose, walletAddress }: BetHistoryModalProps) {
+  const { bets, isLoading, error, downloadAsJSON } = useBetHistory(walletAddress);
 
-  const filtered = filter === 'all' ? mockHistory : mockHistory.filter(h => h.result === filter);
+  const handleDownload = () => {
+    try {
+      if (bets.length === 0) {
+        toast.info('No bet data available to download');
+        return;
+      }
+      downloadAsJSON(`somnia-bets-${walletAddress?.slice(0, 6)}-${Date.now()}.json`);
+      toast.success(`Downloaded ${bets.length} bet records successfully!`);
+    } catch (err) {
+      toast.error('Failed to download stream data');
+      console.error(err);
+    }
+  };
+
+  const displayHistory = bets.length > 0 ? bets.map((bet, index) => ({
+    id: bet.betId || `bet-${index}`,
+    title: `${bet.betType} Bet`,
+    betType: bet.betType,
+    amount: Number(bet.amount) / 1e18,
+    odds: Number(bet.odds) / 1e18,
+    result: 'PENDING' as const,
+    payout: 0,
+    timestamp: new Date(Number(bet.timestamp) * 1000).toLocaleString(),
+  })) : mockHistory;
 
   const stats = {
-    totalBets: mockHistory.length,
-    wins: mockHistory.filter(h => h.result === 'WIN').length,
-    losses: mockHistory.filter(h => h.result === 'LOSS').length,
-    totalStaked: mockHistory.reduce((sum, h) => sum + h.amount, 0),
-    totalPayout: mockHistory.reduce((sum, h) => sum + h.payout, 0),
-    winRate: ((mockHistory.filter(h => h.result === 'WIN').length / mockHistory.filter(h => h.result !== 'PENDING').length) * 100).toFixed(1),
+    totalBets: displayHistory.length,
+    wins: displayHistory.filter(h => h.result === 'WIN').length,
+    losses: displayHistory.filter(h => h.result === 'LOSS').length,
+    totalStaked: displayHistory.reduce((sum, h) => sum + h.amount, 0),
+    totalPayout: displayHistory.reduce((sum, h) => sum + h.payout, 0),
+    winRate: displayHistory.filter(h => h.result !== 'PENDING').length > 0
+      ? ((displayHistory.filter(h => h.result === 'WIN').length / displayHistory.filter(h => h.result !== 'PENDING').length) * 100).toFixed(1)
+      : '0',
   };
 
   return (
@@ -94,17 +123,58 @@ export default function BetHistoryModal({ onClose }: BetHistoryModalProps) {
               <CardTitle className="text-2xl neon-glow">Betting History</CardTitle>
               <CardDescription className="text-muted-foreground mt-1 text-xs sm:text-sm">View your bets and performance</CardDescription>
             </div>
-            <Button
-              onClick={onClose}
-              className="border border-primary/20 text-primary hover:bg-primary/5 p-2 sm:p-3 w-auto"
-              variant="outline"
-              size="icon"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleDownload}
+                disabled={isLoading || !walletAddress || bets.length === 0}
+                className="border border-primary/20 text-primary hover:bg-primary/5"
+                variant="outline"
+                size="sm"
+                title={bets.length === 0 ? "No data to download" : "Download bet history as JSON"}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download JSON
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={onClose}
+                className="border border-primary/20 text-primary hover:bg-primary/5 p-2 sm:p-3 w-auto"
+                variant="outline"
+                size="icon"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </CardHeader>
 
           <CardContent className="pt-4 sm:pt-6 space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {bets.length > 0 && (
+              <Alert className="border-primary/20 bg-primary/5">
+                <AlertDescription className="text-sm">
+                  Displaying {bets.length} bet{bets.length !== 1 ? 's' : ''} from Somnia Data Streams
+                </AlertDescription>
+              </Alert>
+            )}
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <span className="ml-3 text-muted-foreground">Loading bet history from Somnia...</span>
+              </div>
+            )}
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
               <div className="border border-primary/15 bg-primary/5 rounded-lg p-3 sm:p-4">
                 <p className="text-xs text-muted-foreground mb-1">Win Rate</p>
@@ -130,33 +200,47 @@ export default function BetHistoryModal({ onClose }: BetHistoryModalProps) {
             <div>
               <Tabs defaultValue="all" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 border border-primary/15 bg-primary/5">
-                  <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
+                  <TabsTrigger value="all" className="text-xs sm:text-sm">All Bets</TabsTrigger>
                   <TabsTrigger value="WIN" className="text-xs sm:text-sm">Wins</TabsTrigger>
                   <TabsTrigger value="LOSS" className="text-xs sm:text-sm">Losses</TabsTrigger>
                   <TabsTrigger value="PENDING" className="text-xs sm:text-sm">Pending</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="all" className="space-y-2 mt-4">
-                  {filtered.length === 0 ? (
+                  {displayHistory.length === 0 ? (
                     <p className="text-center text-muted-foreground py-4 text-sm">No bets found</p>
                   ) : (
-                    filtered.map(bet => <HistoryRow key={bet.id} bet={bet} />)
+                    displayHistory.map(bet => <HistoryRow key={bet.id} bet={bet} />)
                   )}
                 </TabsContent>
                 <TabsContent value="WIN" className="space-y-2 mt-4">
-                  {mockHistory.filter(b => b.result === 'WIN').map(bet => (
-                    <HistoryRow key={bet.id} bet={bet} />
-                  ))}
+                  {displayHistory.filter(b => b.result === 'WIN').length === 0 ? (
+                    <p className="text-center text-muted-foreground py-4 text-sm">
+                      {bets.length > 0 
+                        ? 'Bet outcomes not yet available. Check back later for results.' 
+                        : 'No bets found'}
+                    </p>
+                  ) : (
+                    displayHistory.filter(b => b.result === 'WIN').map(bet => <HistoryRow key={bet.id} bet={bet} />)
+                  )}
                 </TabsContent>
                 <TabsContent value="LOSS" className="space-y-2 mt-4">
-                  {mockHistory.filter(b => b.result === 'LOSS').map(bet => (
-                    <HistoryRow key={bet.id} bet={bet} />
-                  ))}
+                  {displayHistory.filter(b => b.result === 'LOSS').length === 0 ? (
+                    <p className="text-center text-muted-foreground py-4 text-sm">
+                      {bets.length > 0 
+                        ? 'Bet outcomes not yet available. Check back later for results.' 
+                        : 'No bets found'}
+                    </p>
+                  ) : (
+                    displayHistory.filter(b => b.result === 'LOSS').map(bet => <HistoryRow key={bet.id} bet={bet} />)
+                  )}
                 </TabsContent>
                 <TabsContent value="PENDING" className="space-y-2 mt-4">
-                  {mockHistory.filter(b => b.result === 'PENDING').map(bet => (
-                    <HistoryRow key={bet.id} bet={bet} />
-                  ))}
+                  {displayHistory.filter(b => b.result === 'PENDING').length === 0 ? (
+                    <p className="text-center text-muted-foreground py-4 text-sm">No pending bets</p>
+                  ) : (
+                    displayHistory.filter(b => b.result === 'PENDING').map(bet => <HistoryRow key={bet.id} bet={bet} />)
+                  )}
                 </TabsContent>
               </Tabs>
             </div>
