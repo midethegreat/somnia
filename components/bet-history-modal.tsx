@@ -74,14 +74,10 @@ export default function BetHistoryModal({ onClose, walletAddress }: BetHistoryMo
 
   const handleDownload = () => {
     try {
-      if (bets.length === 0) {
-        toast.info('No bet data available to download');
-        return;
-      }
-      downloadAsJSON(`somnia-bets-${walletAddress?.slice(0, 6)}-${Date.now()}.json`);
-      toast.success(`Downloaded ${bets.length} bet records successfully!`);
+      downloadAsJSON(`somnia-bets-${walletAddress?.slice(0, 6) || 'unknown'}-${Date.now()}.json`);
+      toast.success(`Downloaded ${displayHistory.length} bet records successfully!`);
     } catch (err) {
-      toast.error('Failed to download stream data');
+      toast.error('Failed to download data');
       console.error(err);
     }
   };
@@ -126,11 +122,11 @@ export default function BetHistoryModal({ onClose, walletAddress }: BetHistoryMo
             <div className="flex gap-2">
               <Button
                 onClick={handleDownload}
-                disabled={isLoading || !walletAddress || bets.length === 0}
+                disabled={isLoading}
                 className="border border-primary/20 text-primary hover:bg-primary/5"
                 variant="outline"
                 size="sm"
-                title={bets.length === 0 ? "No data to download" : "Download bet history as JSON"}
+                title="Download bet history as JSON"
               >
                 {isLoading ? (
                   <>

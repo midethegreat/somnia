@@ -85,10 +85,11 @@ export function useBetHistory(walletAddress?: string) {
     try {
       const jsonData = {
         exportDate: new Date().toISOString(),
-        walletAddress,
+        walletAddress: walletAddress || "not-connected",
         schema: "uint64 timestamp, uint8 betType, uint256 amount, uint256 odds, bytes32 betId, bytes32 marketId",
         totalRecords: bets.length,
-        bets,
+        bets: bets && bets.length > 0 ? bets : [],
+        note: bets.length === 0 ? "No bets found on blockchain. Showing sample data." : undefined,
       }
 
       const jsonString = JSON.stringify(jsonData, null, 2)
@@ -99,16 +100,15 @@ export function useBetHistory(walletAddress?: string) {
       
       link.setAttribute("href", url)
       link.setAttribute("download", filename)
-      link.style.visibility = "hidden"
       
       document.body.appendChild(link)
+      link.click()
       
-      // Use setTimeout to ensure the link is in the DOM before clicking
+      // Clean up after a small delay to ensure the download is initiated
       setTimeout(() => {
-        link.click()
         document.body.removeChild(link)
         URL.revokeObjectURL(url)
-      }, 0)
+      }, 100)
     } catch (error) {
       console.error("Download failed:", error)
       throw new Error("Failed to download bet data")
