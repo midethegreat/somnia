@@ -8,6 +8,7 @@ import BettingInterface from "./betting-interface"
 import AdminDashboard from "./admin-dashboard"
 import Leaderboard from "./leaderboard"
 import UserStats from "./user-stats"
+import { SomniaButton } from "./somnia-button"
 
 interface DashboardProps {
   onDisconnect: () => void
@@ -38,13 +39,18 @@ export default function Dashboard({ onDisconnect, walletAddress }: DashboardProp
         {/* Markets or Place Bet Section */}
         {activeView === "markets" && (
           <>
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-foreground">Welcome, Dev Mide</h2>
-              <p className="text-sm text-muted-foreground mt-2">
-                {walletAddress
-                  ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-                  : "Connected to Somnia Testnet"}
-              </p>
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground">Welcome, Dev Mide</h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {walletAddress
+                    ? `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+                    : "Connected to Somnia Testnet"}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <SomniaButton eventId="live-bets" variant="outline" />
+              </div>
             </div>
 
             <AvailableBets
