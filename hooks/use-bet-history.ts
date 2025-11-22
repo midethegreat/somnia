@@ -82,26 +82,37 @@ export function useBetHistory(walletAddress?: string) {
   }, [sdk, schemaId, schemaEncoder, walletAddress])
 
   const downloadAsJSON = (filename: string = "somnia-bets.json") => {
-    const jsonData = {
-      exportDate: new Date().toISOString(),
-      walletAddress,
-      schema: "uint64 timestamp, uint8 betType, uint256 amount, uint256 odds, bytes32 betId, bytes32 marketId",
-      totalRecords: bets.length,
-      bets,
+    try {
+      const jsonData = {
+        exportDate: new Date().toISOString(),
+        walletAddress,
+        schema: "uint64 timestamp, uint8 betType, uint256 amount, uint256 odds, bytes32 betId, bytes32 marketId",
+        totalRecords: bets.length,
+        bets,
+      }
+
+      const jsonString = JSON.stringify(jsonData, null, 2)
+      const blob = new Blob([jsonString], { type: "application/json;charset=utf-8;" })
+      
+      const link = document.createElement("a")
+      const url = URL.createObjectURL(blob)
+      
+      link.setAttribute("href", url)
+      link.setAttribute("download", filename)
+      link.style.visibility = "hidden"
+      
+      document.body.appendChild(link)
+      
+      // Use setTimeout to ensure the link is in the DOM before clicking
+      setTimeout(() => {
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      }, 0)
+    } catch (error) {
+      console.error("Download failed:", error)
+      throw new Error("Failed to download bet data")
     }
-
-    const blob = new Blob([JSON.stringify(jsonData, null, 2)], {
-      type: "application/json",
-    })
-
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
   }
 
   return {
