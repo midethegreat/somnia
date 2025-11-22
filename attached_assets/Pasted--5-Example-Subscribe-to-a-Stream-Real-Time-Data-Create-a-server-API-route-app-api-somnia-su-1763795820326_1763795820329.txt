@@ -1,0 +1,104 @@
+✅ 5. Example: Subscribe to a Stream (Real-Time Data)
+
+Create a server API route:
+
+/app/api/somnia/subscribe/route.ts
+import { somniaSDK } from "@/lib/somnia-sdk";
+
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+  const params = {
+    somniaStreamsEventId: "your-event-id",
+    context: "data",
+    ethCalls: [],
+    onlyPushChanges: true,
+    onData: (data) => {
+      console.log("New stream data:", data);
+    },
+  };
+
+  const sub = await somniaSDK.streams.subscribe(params);
+
+  return new Response("Subscription active");
+}
+
+
+This activates your subscription when you hit:
+
+http://localhost:3000/api/somnia/subscribe
+
+✅ 6. Example: Emit Data to Trigger Streams (write)
+
+Create:
+
+/app/api/somnia/emit/route.ts
+import { somniaSDK } from "@/lib/somnia-sdk";
+import { toHex } from "viem";
+
+export async function POST(request: Request) {
+  const body = await request.json();
+
+  const dataStreams = [
+    {
+      id: toHex("44-7", { size: 32 }),
+      schemaId: body.schemaId,
+      data: body.encodedData,
+    },
+  ];
+
+  const eventStreams = [
+    {
+      id: body.eventId,
+      argumentTopics: body.topics,
+      data: body.data,
+    },
+  ];
+
+  const result = await somniaSDK.streams.setAndEmitEvents(
+    dataStreams,
+    eventStreams
+  );
+
+  return Response.json({ tx: result });
+}
+
+
+You can send a POST request to emit data.
+
+✅ 7. Client Component Example
+
+Create a button that triggers the subscription:
+
+/components/somnia-button.tsx
+"use client";
+
+export function SomniaButton() {
+  async function startSub() {
+    await fetch("/api/somnia/subscribe");
+    alert("Somnia subscription activated!");
+  }
+
+  return (
+    <button
+      onClick={startSub}
+      className="px-4 py-2 bg-purple-600 text-white rounded"
+    >
+      Start Somnia Stream
+    </button>
+  );
+}
+
+
+Then use it in your page:
+
+import { SomniaButton } from "@/components/somnia-button";
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Somnia Live Data</h1>
+      <SomniaButton />
+    </div>
+  );
+}
